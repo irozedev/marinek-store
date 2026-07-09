@@ -10,7 +10,20 @@ export const PAY_LINKS = {
   personal: process.env.NEXT_PUBLIC_PAY_LINK_PERSONAL || '#tariffs',
 };
 
-export const TELEGRAM_URL = process.env.NEXT_PUBLIC_TELEGRAM_URL || '';
+// Telegram-канали доступу: «Стандарт» — свій канал, «Чат» і «Персональний» — спільний.
+// /thank-you?plan=standard|chat|personal обирає посилання за планом.
+export const TELEGRAM_URLS = {
+  standard: process.env.NEXT_PUBLIC_TELEGRAM_URL_STANDARD || '',
+  premium: process.env.NEXT_PUBLIC_TELEGRAM_URL_PREMIUM || '',
+};
+
+export function telegramUrlForPlan(plan: string | null): string {
+  if (plan === 'standard') return TELEGRAM_URLS.standard;
+  // chat, personal і будь-що нерозпізнане → преміум-канал безпечніше не давати,
+  // тому фолбек — стандартний канал, якщо преміум не заданий.
+  if (plan === 'chat' || plan === 'personal') return TELEGRAM_URLS.premium || TELEGRAM_URLS.standard;
+  return TELEGRAM_URLS.standard;
+}
 
 export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 

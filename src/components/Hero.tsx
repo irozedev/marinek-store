@@ -51,8 +51,8 @@ export default function Hero() {
         <Image
           src="/images/hero-trainer.webp"
           alt="Тренерка марафону"
-          width={470}
-          height={836}
+          width={1024}
+          height={1536}
           priority
           sizes="(min-width: 1160px) 510px, (min-width: 768px) 405px, 100vw"
           className="block h-auto w-full [mask-image:linear-gradient(to_bottom,transparent_0%,black_18%)] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_18%)] md:h-full md:min-h-[540px] md:object-cover md:[mask-image:linear-gradient(to_right,transparent_0%,black_18%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_18%)]"

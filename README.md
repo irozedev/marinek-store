@@ -11,7 +11,8 @@ Next.js 14 (App Router) · TypeScript · Tailwind CSS · повністю ста
 | `/oferta`    | Публічний договір (оферта)                       |
 | `/privacy`   | Політика конфіденційності                        |
 | `/rules`     | Правила користування                             |
-| `/thank-you` | Після оплати (noindex, авторедірект у Telegram)  |
+| `/thank-you` | Після оплати (noindex, авторедірект у Telegram за `?plan=`) |
+| `/payment-failed` | Неуспішна оплата (noindex)                  |
 
 ## Запуск локально
 
@@ -26,7 +27,7 @@ npm run dev                  # http://localhost:3000
 Усі змінні описані в [`.env.example`](./.env.example):
 
 - `NEXT_PUBLIC_PAY_LINK_STANDARD` / `_CHAT` / `_PERSONAL` — платіжні посилання WayForPay (фолбек: `#tariffs`);
-- `NEXT_PUBLIC_TELEGRAM_URL` — куди редіректить `/thank-you`;
+- `NEXT_PUBLIC_TELEGRAM_URL_STANDARD` / `_PREMIUM` — Telegram-канали; `/thank-you?plan=standard|chat|personal` обирає канал;
 - `NEXT_PUBLIC_GA_ID` — Google Analytics 4 Measurement ID (`G-…`). GA вантажиться **лише після згоди** «Прийняти всі» в cookie-банері; якщо ID заданий, банер вмикається автоматично;
 - `NEXT_PUBLIC_SHOW_COOKIE_BANNER` — примусово показувати банер (`true`/`false`).
 
@@ -49,7 +50,11 @@ npm run build   # статичний export → папка out/
 4. Задеплоїти. **Settings → Domains** → додати `marinek.store` і `www.marinek.store`;
    у реєстратора домену прописати DNS-записи, які покаже Vercel (A `76.76.21.21` або CNAME
    `cname.vercel-dns.com`).
-5. У кабінеті WayForPay вказати `returnUrl: https://marinek.store/thank-you`.
+5. У кожній платіжній кнопці WayForPay («Налаштувати перенаправлення клієнта»):
+   - approvedUrl: `https://marinek.store/thank-you?plan=standard` (для «Стандарт»),
+     `...?plan=chat` («Чат з учасницями»), `...?plan=personal` («Персональний супровід»);
+   - declinedUrl: `https://marinek.store/payment-failed`;
+   - увімкнути «Вимкнути відправку POST на returnUrl» (сайт статичний).
 
 ## Структура
 
