@@ -87,7 +87,7 @@ export function Footer() {
         <br />
         89607, Закарпатська обл., м. Мукачево, вул. Володимира Митрополита, буд. 14, кв. 62
         <br />
-        E-mail: [вкажіть e-mail] · Тел.: [вкажіть телефон] · Сайт: marinek.store
+        E-mail: marynabrianyk@gmail.com · Сайт: marinek.store
       </div>
       <div className="flex flex-col gap-2 text-[13px]">
         <Link href="/oferta" className="text-linkFooter">
