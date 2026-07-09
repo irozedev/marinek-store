@@ -1,0 +1,4 @@
+# Netlify: статичний білд Next.js (output: 'export')
+[build]
+  command = "npm run build"
+  publish = "out"
