@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  /* Плавний скрол на якоря (#tariffs) — нативно, без JS-бібліотек */
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #1b0724;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Секції-цілі якорів не «пірнають» під sticky-елементи */
+[id] {
+  scroll-margin-top: 16px;
+}
+
+/* Карусель результатів: прихований скролбар */
+.mx-results {
+  scrollbar-width: none;
+}
+.mx-results::-webkit-scrollbar {
+  display: none;
+}
+
+/* FAQ: плюсик обертається на 45° при відкритті */
+details summary::-webkit-details-marker {
+  display: none;
+}
+details .faq-plus {
+  transition: transform 0.25s ease;
+}
+details[open] .faq-plus {
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-marquee,
+  .animate-floaty {
+    animation: none;
+  }
+}
+
+/* Типографіка юридичних сторінок (спільна для /oferta, /privacy, /rules) */
+.legal-article h2 {
+  font-family: var(--font-unbounded), sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: #1b0724;
+  margin: 28px 0 10px;
+}
+.legal-article p,
+.legal-article li {
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: #3d2547;
+  margin: 0 0 10px;
+}
+.legal-article ul {
+  padding-left: 20px;
+  margin: 0 0 10px;
+}
+.legal-article a {
+  color: #c915a0;
+  text-decoration: none;
+}
+.legal-article a:hover {
+  color: #8a2464;
+}
