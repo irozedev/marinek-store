@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { telegramUrlForPlan } from '@/lib/site';
+import { isValidPlan, telegramUrlForPlan } from '@/lib/site';
 
 /**
  * Сторінка після оплати. WayForPay approvedUrl для кожної кнопки:
@@ -11,18 +11,35 @@ import { telegramUrlForPlan } from '@/lib/site';
  *   Персональний супровід: https://marinek.store/thank-you?plan=personal
  * За планом обирається Telegram-канал; авторедірект через 3.5 с + кнопка-fallback.
  */
+function NotFound() {
+  return (
+    <div className="relative w-full max-w-[440px] overflow-hidden rounded-28 bg-[linear-gradient(160deg,#C915A0_0%,#E93CB0_50%,#8A2BE2_100%)] px-[26px] py-10 text-center">
+      <h1 className="relative m-0 mb-3 font-display text-[54px] font-black leading-none text-white">
+        404
+      </h1>
+      <p className="relative m-0 text-[15px] leading-[1.5] text-white/90">
+        Сторінку не знайдено
+      </p>
+    </div>
+  );
+}
+
 function Card() {
   const params = useSearchParams();
   const plan = params.get('plan');
+  const validPlan = isValidPlan(plan);
   const tgUrl = useMemo(() => telegramUrlForPlan(plan), [plan]);
 
   useEffect(() => {
-    if (!tgUrl) return;
+    if (!validPlan || !tgUrl) return;
     const t = setTimeout(() => {
       window.location.href = tgUrl;
     }, 3500);
     return () => clearTimeout(t);
-  }, [tgUrl]);
+  }, [validPlan, tgUrl]);
+
+  // Без ?plan= або з невідомим планом — сторінка не існує.
+  if (!validPlan) return <NotFound />;
 
   return (
     <div className="relative w-full max-w-[440px] overflow-hidden rounded-28 bg-[linear-gradient(160deg,#C915A0_0%,#E93CB0_50%,#8A2BE2_100%)] px-[26px] py-10 text-center">

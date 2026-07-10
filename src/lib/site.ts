@@ -17,12 +17,20 @@ export const TELEGRAM_URLS = {
   premium: process.env.NEXT_PUBLIC_TELEGRAM_URL_PREMIUM || '',
 };
 
+// Розпізнані плани. Без ?plan= або з невідомим значенням /thank-you показує 404.
+export const VALID_PLANS = ['standard', 'chat', 'personal'] as const;
+export type Plan = (typeof VALID_PLANS)[number];
+
+export function isValidPlan(plan: string | null): plan is Plan {
+  return plan !== null && (VALID_PLANS as readonly string[]).includes(plan);
+}
+
 export function telegramUrlForPlan(plan: string | null): string {
   if (plan === 'standard') return TELEGRAM_URLS.standard;
-  // chat, personal і будь-що нерозпізнане → преміум-канал безпечніше не давати,
-  // тому фолбек — стандартний канал, якщо преміум не заданий.
+  // chat, personal → спільний преміум-канал (фолбек на стандартний, якщо преміум не заданий).
   if (plan === 'chat' || plan === 'personal') return TELEGRAM_URLS.premium || TELEGRAM_URLS.standard;
-  return TELEGRAM_URLS.standard;
+  // Невідомий/відсутній план — жодного посилання (сторінка покаже 404).
+  return '';
 }
 
 export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
