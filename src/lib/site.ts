@@ -1,5 +1,5 @@
 // Єдина константа дати старту — зустрічається в hero, тарифах, фінальному CTA і sticky CTA.
-export const START_DATE = '27.07';
+export const START_DATE = '03.08';
 
 export const SITE_URL = 'https://marinek.store';
 
