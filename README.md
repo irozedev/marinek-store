@@ -66,7 +66,7 @@ src/
 public/images/    # оптимізовані WebP (hero + results/)
 ```
 
-Дата старту потоку («27.07») — одна константа `START_DATE` у `src/lib/site.ts`.
+Дата старту потоку («03.08») — одна константа `START_DATE` у `src/lib/site.ts`.
 
 ## Відомі TODO перед продом
 

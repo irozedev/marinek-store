@@ -20,7 +20,7 @@ const golos = Golos_Text({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Марафон схуднення для жінок — старт 27.07',
+  title: 'Марафон схуднення для жінок — старт 03.08',
   description:
     'Ціль — навчитись худнути так, щоб результат залишився. 21 день, 7 тренувань, 3 Zoom наживо.',
 };
