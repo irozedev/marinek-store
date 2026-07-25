@@ -2,7 +2,7 @@ import type { Config } from '@netlify/functions';
 import { db, type Order } from '../lib/db';
 import { sendInviteEmail } from '../lib/email';
 import { PLANS, channelIdForPlan, isPlanId } from '../lib/plans';
-import { createSingleUseInvite } from '../lib/telegram';
+import { createSingleUseInvite, revokeInvite } from '../lib/telegram';
 import {
   buildCallbackResponse,
   verifyCallbackSignature,
@@ -57,10 +57,12 @@ export default async (req: Request): Promise<Response> => {
     return new Response('amount mismatch', { status: 400 });
   }
 
+  const newStatus = mapStatus(body.transactionStatus);
+
   await db()
     .from('orders')
     .update({
-      status: mapStatus(body.transactionStatus),
+      status: newStatus,
       transaction_status: body.transactionStatus,
       reason_code: String(body.reasonCode ?? ''),
       email: body.email ?? order.email,
@@ -71,12 +73,38 @@ export default async (req: Request): Promise<Response> => {
     })
     .eq('id', order.id);
 
-  if (body.transactionStatus === 'Approved') {
+  if (newStatus === 'paid') {
     await issueInvite(order, body.email ?? order.email);
+  } else if (newStatus !== 'pending' && order.invite_link) {
+    // Гроші повернені або платіж скасований — доступ має зникнути разом
+    // із ними. Інакше виходить безкоштовний вхід: оплатити, отримати
+    // посилання, а потім оформити повернення.
+    await revokeIssuedInvite(order, newStatus);
   }
 
   return json(buildCallbackResponse(body.orderReference));
 };
+
+/**
+ * Гасить видане посилання після повернення/скасування.
+ *
+ * ВАЖЛИВО про межі: це закриває лише випадок, коли жінка ще не встигла
+ * увійти. Якщо вона вже в каналі, відкликання посилання її звідти не
+ * виганяє — щоб виганяти, треба знати її Telegram-акаунт, а для цього
+ * потрібна підписка на події chat_member. Поки що такий випадок
+ * розбирається вручну через адмінку.
+ */
+async function revokeIssuedInvite(order: Order, newStatus: Order['status']): Promise<void> {
+  if (!isPlanId(order.plan) || !order.invite_link) return;
+  try {
+    await revokeInvite(channelIdForPlan(PLANS[order.plan]), order.invite_link);
+    // Саме newStatus, а не order.status: у order лежить стан ДО оновлення.
+    console.log(`callback: інвайт відкликано після ${newStatus} — ${order.order_reference}`);
+  } catch (err) {
+    // Могло бути відкликане раніше (ретрай вебхука) — не привід падати.
+    console.warn('callback: не вдалося відкликати інвайт', order.order_reference, err);
+  }
+}
 
 /**
  * Видає інвайт рівно один раз. Захист від паралельних ретраїв — умовний
