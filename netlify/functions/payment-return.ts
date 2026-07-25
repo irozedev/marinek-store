@@ -24,8 +24,15 @@ const TOKEN_RE = /^[a-f0-9]{48}$/;
 export default async (req: Request): Promise<Response> => {
   let token = new URL(req.url).searchParams.get('t') || '';
 
+  // Документація WayForPay не описує, ні яким методом він повертає
+  // браузер, ні чи зберігає query. Тому пишемо в лог те, що реально
+  // прийшло: якщо знову не спрацює, розбиратись треба за даними, а не
+  // за здогадками, і ще одна справжня оплата на це не знадобиться.
+  const body = req.method === 'POST' ? await safeText(req) : '';
+  console.log('payment-return:', req.method, req.url, '| body:', body.slice(0, 500) || '(порожнє)');
+
   if (!TOKEN_RE.test(token)) {
-    const ref = await orderReferenceFromBody(req);
+    const ref = orderReferenceFromBody(body);
     if (ref) {
       const { data } = await db()
         .from('orders')
@@ -49,16 +56,16 @@ export default async (req: Request): Promise<Response> => {
   });
 };
 
-/** WayForPay шле або form-urlencoded, або JSON — інколи JSON в імені поля. */
-async function orderReferenceFromBody(req: Request): Promise<string | null> {
-  if (req.method !== 'POST') return null;
-
-  let raw: string;
+async function safeText(req: Request): Promise<string> {
   try {
-    raw = await req.text();
+    return await req.text();
   } catch {
-    return null;
+    return '';
   }
+}
+
+/** WayForPay шле або form-urlencoded, або JSON — інколи JSON в імені поля. */
+function orderReferenceFromBody(raw: string): string | null {
   if (!raw) return null;
 
   try {
