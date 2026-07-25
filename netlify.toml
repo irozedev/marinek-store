@@ -1,4 +1,17 @@
-# Netlify: статичний білд Next.js (output: 'export')
+# Netlify: статичний білд Next.js (output: 'export') + serverless-функції.
+# API-роути Next.js тут не працюють (сервера немає), тому вся серверна
+# логіка — платежі, вебхук WayForPay, видача Telegram-інвайтів — живе
+# в netlify/functions і деплоїться разом зі статикою.
 [build]
   command = "npm run build"
   publish = "out"
+
+[build.environment]
+  # Netlify бачить Next.js і сам підключає @netlify/plugin-nextjs, але той
+  # плагін для серверного рендерингу. У нас output: 'export' — статика вже
+  # зібрана в out/, і плагін лише падає на етапі публікації.
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

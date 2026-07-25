@@ -7,3 +7,9 @@ out/
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# Local Netlify folder
+.netlify
+
+# Netlify CLI створює його для Edge Functions, яких у проєкті немає
+deno.lock
