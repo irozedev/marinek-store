@@ -29,7 +29,11 @@ export default async (req: Request): Promise<Response> => {
   // прийшло: якщо знову не спрацює, розбиратись треба за даними, а не
   // за здогадками, і ще одна справжня оплата на це не знадобиться.
   const body = req.method === 'POST' ? await safeText(req) : '';
-  console.log('payment-return:', req.method, req.url, '| body:', body.slice(0, 500) || '(порожнє)');
+  // Один рядок, тільки ASCII і без зайвих аргументів: у логах Netlify
+  // повідомлення з кирилицею та кількома аргументами приходило порожнім.
+  console.log(
+    `RETURN method=${req.method} url=${req.url} bodyLen=${body.length} body=${JSON.stringify(body.slice(0, 400))}`,
+  );
 
   if (!TOKEN_RE.test(token)) {
     const ref = orderReferenceFromBody(body);
@@ -47,7 +51,7 @@ export default async (req: Request): Promise<Response> => {
   if (!TOKEN_RE.test(token)) {
     // Не мовчазний збій: без цього рядка не зрозуміти, чому жінка
     // побачила порожню сторінку замість посилання.
-    console.warn('payment-return: не вдалося визначити замовлення', req.method, req.url);
+    console.warn(`RETURN unresolved method=${req.method} url=${req.url}`);
   }
 
   return new Response(null, {
