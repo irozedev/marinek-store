@@ -15,6 +15,23 @@ import { Resend } from 'resend';
 const FROM = process.env.RESEND_FROM || 'Marina K <marina@marinek.store>';
 const REPLY_TO = process.env.RESEND_REPLY_TO || 'marynabrianyk@gmail.com';
 
+/**
+ * Реквізити продавця. Мають збігатися з офертою (src/app/oferta/page.tsx) —
+ * якщо там щось міняється, правити і тут.
+ *
+ * Потрібні не лише для годиться: у виписці по картці списання видно як
+ * платіж через WayForPay, і жінка може не впізнати його за пару тижнів.
+ * Лист із чітко названим продавцем знімає це питання до того, як воно
+ * перетвориться на оскарження платежу в банку.
+ */
+const SELLER = {
+  name: 'ФОП Бряник Марина Альбертівна',
+  taxId: 'РНОКПП 3676205422',
+  address: 'Україна, 89607, Закарпатська обл., м. Мукачево, вул. Володимира Митрополита, буд. 14, кв. 62',
+  site: 'marinek.store',
+  offer: 'https://marinek.store/oferta',
+};
+
 export async function sendInviteEmail({
   to,
   planTitle,
@@ -65,6 +82,17 @@ export async function sendInviteEmail({
         <a href="mailto:${escapeHtml(REPLY_TO)}" style="color:#C915A0">${escapeHtml(REPLY_TO)}</a>
         — і ми все владнаємо.
       </p>
+
+      <hr style="border:none;border-top:1px solid #eadff0;margin:28px 0 16px">
+      <p style="margin:0;font-size:12px;line-height:1.6;color:#9c8fa5">
+        ${escapeHtml(SELLER.name)}, ${escapeHtml(SELLER.taxId)}<br>
+        ${escapeHtml(SELLER.address)}<br>
+        <a href="mailto:${escapeHtml(REPLY_TO)}" style="color:#9c8fa5">${escapeHtml(REPLY_TO)}</a>
+        ·
+        <a href="https://${escapeHtml(SELLER.site)}" style="color:#9c8fa5">${escapeHtml(SELLER.site)}</a>
+        ·
+        <a href="${escapeHtml(SELLER.offer)}" style="color:#9c8fa5">Умови надання послуг</a>
+      </p>
     </div>
   `;
 
@@ -83,6 +111,12 @@ export async function sendInviteEmail({
     'та вставте у пошук застосунку Telegram.',
     '',
     `Щось не спрацювало? Відповідайте на цей лист або пишіть на ${REPLY_TO}.`,
+    '',
+    '—',
+    `${SELLER.name}, ${SELLER.taxId}`,
+    SELLER.address,
+    `${REPLY_TO} · ${SELLER.site}`,
+    `Умови надання послуг: ${SELLER.offer}`,
   ].join('\n');
 
   const resend = new Resend(apiKey);
