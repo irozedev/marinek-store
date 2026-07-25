@@ -70,9 +70,11 @@ export default async (req: Request): Promise<Response> => {
     serviceUrl: `${base}/api/wayforpay-callback`,
     // Не напряму на /thank-you: WayForPay повертає браузер POST-ом, а на
     // POST до статики Netlify віддає 404. Функція payment-return приймає
-    // POST і переадресовує на сторінку через 303. Токен, а не план —
-    // /thank-you більше не вірить query-параметру на слово.
-    returnUrl: `${base}/api/payment-return?t=${order.access_token}`,
+    // POST і переадресовує на сторінку через 303.
+    //
+    // Токен саме В ШЛЯХУ, а не в ?t=: перевірено на живій оплаті, що
+    // query-рядок до нас не доїжджає. Шлях WayForPay не ріже.
+    returnUrl: `${base}/api/payment-return/${order.access_token}`,
   });
 
   return json({ action: WAYFORPAY_PAY_URL, fields });

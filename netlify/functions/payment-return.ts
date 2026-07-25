@@ -4,39 +4,40 @@ import { db, type Order } from '../lib/db';
 /**
  * Точка повернення з WayForPay.
  *
- * Проблема перша: WayForPay повертає браузер на returnUrl методом POST,
- * а Netlify на POST до статичного файлу віддає 404. Тому повернення
- * приймає функція й перекидає на сторінку через 303 — цей статус
- * перетворює POST на GET.
+ * Дві проблеми, які тут вирішуються.
  *
- * Проблема друга: судячи з поведінки, query-рядок у returnUrl до нас не
- * доїжджає, тож ?t= покладатись не можна. Але WayForPay кладе в тіло
- * POST усі дані транзакції, зокрема orderReference — за ним токен
- * дістається з бази. Тому працюємо двома шляхами: беремо ?t=, якщо він
- * є, інакше шукаємо замовлення за orderReference.
+ * Перша: WayForPay повертає браузер на returnUrl методом POST, а Netlify
+ * на POST до статичного файлу віддає 404. Тому повернення приймає
+ * функція й перекидає на сторінку через 303 — цей статус перетворює
+ * POST на GET.
  *
- * Токен у відповіді — не ключ до оплати, а лише спосіб прочитати
- * результат: оплаченим замовлення робить тільки підписаний вебхук.
+ * Друга: query-рядок до нас не доїжджає. Це підтверджено — після оплати
+ * жінка бачила нашу ж сторінку з «Сторінку не знайдено», тобто запит
+ * дійшов, а ?t= зник. Тому токен передається В ШЛЯХУ адреси:
+ * /api/payment-return/<токен>. Шлях платіжні шлюзи не ріжуть.
+ *
+ * Додатково лишається запасний шлях — пошук замовлення за
+ * orderReference з тіла POST. Разом це покриває будь-яку поведінку
+ * WayForPay: чи він шле POST з даними, чи робить GET без нічого.
+ *
+ * Токен — не ключ до оплати, а лише спосіб прочитати результат:
+ * оплаченим замовлення робить тільки підписаний вебхук.
  */
 
 const TOKEN_RE = /^[a-f0-9]{48}$/;
 
 export default async (req: Request): Promise<Response> => {
-  let token = new URL(req.url).searchParams.get('t') || '';
+  const url = new URL(req.url);
 
-  // Документація WayForPay не описує, ні яким методом він повертає
-  // браузер, ні чи зберігає query. Тому пишемо в лог те, що реально
-  // прийшло: якщо знову не спрацює, розбиратись треба за даними, а не
-  // за здогадками, і ще одна справжня оплата на це не знадобиться.
-  const body = req.method === 'POST' ? await safeText(req) : '';
-  // Один рядок, тільки ASCII і без зайвих аргументів: у логах Netlify
-  // повідомлення з кирилицею та кількома аргументами приходило порожнім.
-  console.log(
-    `RETURN method=${req.method} url=${req.url} bodyLen=${body.length} body=${JSON.stringify(body.slice(0, 400))}`,
-  );
+  // 1. Токен зі шляху — основний спосіб.
+  let token = url.pathname.split('/').filter(Boolean).pop() || '';
 
-  if (!TOKEN_RE.test(token)) {
-    const ref = orderReferenceFromBody(body);
+  // 2. Раптом query все ж дійшов — приймаємо і його.
+  if (!TOKEN_RE.test(token)) token = url.searchParams.get('t') || '';
+
+  // 3. Останній рубіж: знайти замовлення за orderReference з тіла POST.
+  if (!TOKEN_RE.test(token) && req.method === 'POST') {
+    const ref = orderReferenceFromBody(await safeText(req));
     if (ref) {
       const { data } = await db()
         .from('orders')
@@ -47,16 +48,13 @@ export default async (req: Request): Promise<Response> => {
     }
   }
 
-  const target = TOKEN_RE.test(token) ? `/thank-you/?t=${token}` : '/thank-you/';
-  if (!TOKEN_RE.test(token)) {
-    // Не мовчазний збій: без цього рядка не зрозуміти, чому жінка
-    // побачила порожню сторінку замість посилання.
-    console.warn(`RETURN unresolved method=${req.method} url=${req.url}`);
-  }
-
+  const resolved = TOKEN_RE.test(token);
   return new Response(null, {
     status: 303,
-    headers: { location: target, 'cache-control': 'no-store' },
+    headers: {
+      location: resolved ? `/thank-you/?t=${token}` : '/thank-you/',
+      'cache-control': 'no-store',
+    },
   });
 };
 
@@ -83,7 +81,6 @@ function orderReferenceFromBody(raw: string): string | null {
   const direct = params.get('orderReference');
   if (direct) return direct;
 
-  // Варіант, коли весь JSON лежить у ІМЕНІ першого поля.
   const firstKey = params.keys().next().value;
   if (firstKey) {
     try {
@@ -96,4 +93,7 @@ function orderReferenceFromBody(raw: string): string | null {
   return null;
 }
 
-export const config: Config = { path: '/api/payment-return' };
+// Обидва шляхи: з токеном і без — щоб запасні варіанти теж мали куди прийти.
+export const config: Config = {
+  path: ['/api/payment-return', '/api/payment-return/:token'],
+};
