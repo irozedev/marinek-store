@@ -30,13 +30,33 @@ type InviteResponse = {
 const CARD =
   'relative w-full max-w-[440px] overflow-hidden rounded-28 bg-[linear-gradient(160deg,#C915A0_0%,#E93CB0_50%,#8A2BE2_100%)] px-[26px] py-10 text-center';
 
-function NotFound() {
+/**
+ * Стан «замовлення не знайдено». Раніше тут була гола 404, але сюди
+ * потрапляє не лише випадковий відвідувач: якщо повернення з WayForPay
+ * колись знову зламається, на цю сторінку прийде жінка, яка щойно
+ * заплатила. Показувати їй помилку — найгірше, що можна зробити, тому
+ * даємо робочий шлях далі: лист і адресу для звернення.
+ *
+ * Доступу це не відкриває — посилання видається тільки за валідним
+ * токеном, а токен існує лише для оплаченого замовлення.
+ */
+function OrderNotFound() {
   return (
     <div className={CARD}>
-      <h1 className="relative m-0 mb-3 font-display text-[54px] font-black leading-none text-white">
-        404
+      <h1 className="relative m-0 mb-3 font-display text-[24px] font-black leading-[1.2] text-white">
+        Не знайшли ваше замовлення
       </h1>
-      <p className="relative m-0 text-[15px] leading-[1.5] text-white/90">Сторінку не знайдено</p>
+      <p className="relative m-0 mb-4 text-[15px] leading-[1.5] text-white/90">
+        Якщо ви щойно оплатили — посилання на канал уже надіслане на вашу пошту. Перевірте також
+        папку «Спам».
+      </p>
+      <p className="relative m-0 text-[13.5px] leading-[1.5] text-white/75">
+        Листа немає? Напишіть на{' '}
+        <a href="mailto:marynabrianyk@gmail.com" className="font-bold text-lime underline">
+          marynabrianyk@gmail.com
+        </a>{' '}
+        — відкриємо доступ вручну.
+      </p>
     </div>
   );
 }
@@ -87,7 +107,7 @@ function Card() {
     };
   }, [token]);
 
-  if (missing) return <NotFound />;
+  if (missing) return <OrderNotFound />;
 
   if (data?.inviteLink) {
     return <InviteCard data={data} />;
