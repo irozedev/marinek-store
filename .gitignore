@@ -13,3 +13,9 @@ next-env.d.ts
 
 # Netlify CLI створює його для Edge Functions, яких у проєкті немає
 deno.lock
+
+# Тимчасові скрипти перевірок — можуть містити ключі
+*.tmp.js
+*.tmp.html
+*.tmp.log
+*.tmp.txt
