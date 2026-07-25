@@ -6,6 +6,12 @@
   command = "npm run build"
   publish = "out"
 
+[build.environment]
+  # Netlify бачить Next.js і сам підключає @netlify/plugin-nextjs, але той
+  # плагін для серверного рендерингу. У нас output: 'export' — статика вже
+  # зібрана в out/, і плагін лише падає на етапі публікації.
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
