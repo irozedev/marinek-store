@@ -40,6 +40,18 @@ const CARD =
  * Доступу це не відкриває — посилання видається тільки за валідним
  * токеном, а токен існує лише для оплаченого замовлення.
  */
+/** Вихід із глухого кута: з екранів помилки має бути куди піти. */
+function BackHome() {
+  return (
+    <a
+      href="/"
+      className="relative mt-6 inline-block text-[13.5px] font-bold text-white/70 underline"
+    >
+      Повернутися на сайт
+    </a>
+  );
+}
+
 function OrderNotFound() {
   return (
     <div className={CARD}>
@@ -57,6 +69,7 @@ function OrderNotFound() {
         </a>{' '}
         — відкриємо доступ вручну.
       </p>
+      <BackHome />
     </div>
   );
 }
@@ -113,16 +126,39 @@ function Card() {
     return <InviteCard data={data} />;
   }
 
-  if (data?.status === 'declined' || data?.status === 'refunded') {
+  // Розділяємо навмисно: при поверненні гроші якраз списувались і були
+  // повернені, тож текст «кошти не списані» був би неправдою.
+  if (data?.status === 'declined') {
     return (
       <div className={CARD}>
         <h1 className="relative m-0 mb-3 font-display text-[24px] font-black leading-[1.2] text-white">
           Оплата не пройшла
         </h1>
-        <p className="relative m-0 text-[15px] leading-[1.5] text-white/90">
-          Кошти не списані. Спробуйте оформити ще раз — або напишіть нам, якщо гроші все ж зникли
-          з картки.
+        <p className="relative m-0 mb-7 text-[15px] leading-[1.5] text-white/90">
+          Кошти не списані. Спробуйте ще раз — або напишіть нам, якщо гроші все ж зникли з картки.
         </p>
+        <a
+          href="/#tariffs"
+          className="relative inline-block rounded-pill bg-lime px-8 py-[16px] font-display text-[15px] font-bold text-ink shadow-[0_10px_26px_rgba(27,7,36,.35)]"
+        >
+          Спробувати ще раз
+        </a>
+        <BackHome />
+      </div>
+    );
+  }
+
+  if (data?.status === 'refunded') {
+    return (
+      <div className={CARD}>
+        <h1 className="relative m-0 mb-3 font-display text-[24px] font-black leading-[1.2] text-white">
+          Кошти повернені
+        </h1>
+        <p className="relative m-0 text-[15px] leading-[1.5] text-white/90">
+          Оплату за цим замовленням повернено, доступ до каналу закрито. Якщо це помилка — напишіть
+          нам, розберемось.
+        </p>
+        <BackHome />
       </div>
     );
   }
