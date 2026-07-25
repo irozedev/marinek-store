@@ -1,4 +1,5 @@
-import { PAY_LINKS, START_DATE } from '@/lib/site';
+import PayButton from '@/components/PayButton';
+import { START_DATE } from '@/lib/site';
 
 export default function Tariffs() {
   return (
@@ -29,12 +30,12 @@ export default function Tariffs() {
               <span className="flex-none font-extrabold text-magenta">✓</span>7 тренувань
             </div>
           </div>
-          <a
-            href={PAY_LINKS.standard}
-            className="block rounded-pill border-2 border-[#F5B8DF] bg-pinkChip p-[15px] text-center font-display text-[14px] font-bold text-magentaDeep"
+          <PayButton
+            plan="standard"
+            className="block w-full rounded-pill border-2 border-[#F5B8DF] bg-pinkChip p-[15px] text-center font-display text-[14px] font-bold text-magentaDeep disabled:opacity-60"
           >
             Обрати Стандарт
-          </a>
+          </PayButton>
         </div>
 
         {/* Чат з учасницями — найпопулярніший */}
@@ -62,12 +63,12 @@ export default function Tariffs() {
               </div>
             ))}
           </div>
-          <a
-            href={PAY_LINKS.chat}
-            className="block rounded-pill bg-lime p-4 text-center font-display text-[14px] font-bold text-ink shadow-[0_6px_18px_rgba(27,7,36,.25)]"
+          <PayButton
+            plan="chat"
+            className="block w-full rounded-pill bg-lime p-4 text-center font-display text-[14px] font-bold text-ink shadow-[0_6px_18px_rgba(27,7,36,.25)] disabled:opacity-60"
           >
             Обрати цей пакет
-          </a>
+          </PayButton>
         </div>
 
         {/* Персональний супровід */}
@@ -89,12 +90,12 @@ export default function Tariffs() {
               </div>
             ))}
           </div>
-          <a
-            href={PAY_LINKS.personal}
-            className="block rounded-pill border-2 border-lime bg-transparent p-[15px] text-center font-display text-[14px] font-bold text-lime"
+          <PayButton
+            plan="personal"
+            className="block w-full rounded-pill border-2 border-lime bg-transparent p-[15px] text-center font-display text-[14px] font-bold text-lime disabled:opacity-60"
           >
             Обрати супровід
-          </a>
+          </PayButton>
         </div>
       </div>
 

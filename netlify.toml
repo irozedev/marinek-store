@@ -1,4 +1,11 @@
-# Netlify: статичний білд Next.js (output: 'export')
+# Netlify: статичний білд Next.js (output: 'export') + serverless-функції.
+# API-роути Next.js тут не працюють (сервера немає), тому вся серверна
+# логіка — платежі, вебхук WayForPay, видача Telegram-інвайтів — живе
+# в netlify/functions і деплоїться разом зі статикою.
 [build]
   command = "npm run build"
   publish = "out"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"

@@ -3,35 +3,10 @@ export const START_DATE = '03.08';
 
 export const SITE_URL = 'https://marinek.store';
 
-// Платіжні посилання WayForPay — задаються через env, фолбек веде на секцію тарифів.
-export const PAY_LINKS = {
-  standard: process.env.NEXT_PUBLIC_PAY_LINK_STANDARD || '#tariffs',
-  chat: process.env.NEXT_PUBLIC_PAY_LINK_CHAT || '#tariffs',
-  personal: process.env.NEXT_PUBLIC_PAY_LINK_PERSONAL || '#tariffs',
-};
-
-// Telegram-канали доступу: «Стандарт» — свій канал, «Чат» і «Персональний» — спільний.
-// /thank-you?plan=standard|chat|personal обирає посилання за планом.
-export const TELEGRAM_URLS = {
-  standard: process.env.NEXT_PUBLIC_TELEGRAM_URL_STANDARD || '',
-  premium: process.env.NEXT_PUBLIC_TELEGRAM_URL_PREMIUM || '',
-};
-
-// Розпізнані плани. Без ?plan= або з невідомим значенням /thank-you показує 404.
-export const VALID_PLANS = ['standard', 'chat', 'personal'] as const;
-export type Plan = (typeof VALID_PLANS)[number];
-
-export function isValidPlan(plan: string | null): plan is Plan {
-  return plan !== null && (VALID_PLANS as readonly string[]).includes(plan);
-}
-
-export function telegramUrlForPlan(plan: string | null): string {
-  if (plan === 'standard') return TELEGRAM_URLS.standard;
-  // chat, personal → спільний преміум-канал (фолбек на стандартний, якщо преміум не заданий).
-  if (plan === 'chat' || plan === 'personal') return TELEGRAM_URLS.premium || TELEGRAM_URLS.standard;
-  // Невідомий/відсутній план — жодного посилання (сторінка покаже 404).
-  return '';
-}
+// Ціни, платіжні посилання й Telegram-інвайти свідомо ЖИВУТЬ НА СЕРВЕРІ
+// (netlify/lib/plans.ts, netlify/functions/*), а не тут. Усе, що лежить
+// у цьому файлі, потрапляє в клієнтський бандл і читається з вихідного
+// коду сторінки — саме так статичні інвайти раніше були доступні будь-кому.
 
 export const GA_ID = process.env.NEXT_PUBLIC_GA_ID || '';
 
