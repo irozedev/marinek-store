@@ -68,8 +68,11 @@ export default async (req: Request): Promise<Response> => {
     productCount: [1],
     productPrice: [config.price],
     serviceUrl: `${base}/api/wayforpay-callback`,
-    // Токен, а не план: /thank-you більше не вірить query-параметру на слово.
-    returnUrl: `${base}/thank-you?t=${order.access_token}`,
+    // Не напряму на /thank-you: WayForPay повертає браузер POST-ом, а на
+    // POST до статики Netlify віддає 404. Функція payment-return приймає
+    // POST і переадресовує на сторінку через 303. Токен, а не план —
+    // /thank-you більше не вірить query-параметру на слово.
+    returnUrl: `${base}/api/payment-return?t=${order.access_token}`,
   });
 
   return json({ action: WAYFORPAY_PAY_URL, fields });
