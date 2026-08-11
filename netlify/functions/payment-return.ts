@@ -55,8 +55,27 @@ export default async (req: Request): Promise<Response> => {
   // 2. Раптом query все ж дійшов — приймаємо і його.
   if (!TOKEN_RE.test(token)) token = url.searchParams.get('t') || '';
 
-  const fields = req.method === 'POST' ? parseBody(await safeText(req)) : null;
+  const raw = req.method === 'POST' ? await safeText(req) : '';
+  const fields = raw ? parseBody(raw) : null;
   const failed = await isFailed(token, fields);
+
+  // Діагностика: що саме WayForPay сюди присилає. Логи функцій Netlify через
+  // CLI приходять з порожнім повідомленням — перевірено, часу на них не
+  // витрачати. Тому пишемо в базу: наступний живий платіж сам покаже, чи
+  // доїжджає токен у шляху і чи приходить тіло. Ніколи не ламає повернення:
+  // якщо запис упаде, людину все одно перекине куди треба.
+  try {
+    await db().from('payment_returns').insert({
+      method: req.method,
+      path: url.pathname,
+      content_type: req.headers.get('content-type'),
+      raw_body: raw.slice(0, 8000),
+      token_found: TOKEN_RE.test(token),
+      routed_to: failed ? '/payment-failed/' : '/thank-you/',
+    });
+  } catch (err) {
+    console.error('payment-return: не вдалося записати діагностику', err);
+  }
 
   // Токен далі не передаємо: сторінка його більше не читає, а зайвим даним
   // нема чого лишатися в історії браузера й у реферерах.
