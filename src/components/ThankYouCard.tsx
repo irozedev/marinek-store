@@ -22,6 +22,8 @@
  * на нього ходить щоденний GitHub Action, який не дає Supabase заснути.
  */
 
+import ResendInviteForm from './ResendInviteForm';
+
 const SUPPORT_EMAIL = 'marynabrianyk@gmail.com';
 
 export default function ThankYouCard() {
@@ -40,9 +42,15 @@ export default function ThankYouCard() {
         </p>
 
         <div className="relative rounded-2xl bg-black/20 p-4 text-left">
-          <p className="m-0 mb-3 text-[13.5px] leading-[1.5] text-white/85">
+          <p className="m-0 text-[13.5px] leading-[1.5] text-white/85">
             <span className="font-bold text-lime">Листа немає за кілька хвилин?</span> Перевірте
-            папку «Спам». Якщо він не знайшовся — напишіть на{' '}
+            папку «Спам» — і надішліть його собі ще раз:
+          </p>
+
+          <ResendInviteForm />
+
+          <p className="m-0 mb-3 mt-3 text-[13px] leading-[1.5] text-white/70">
+            Не допомогло? Напишіть на{' '}
             <a href={`mailto:${SUPPORT_EMAIL}`} className="font-bold text-lime underline">
               {SUPPORT_EMAIL}
             </a>
