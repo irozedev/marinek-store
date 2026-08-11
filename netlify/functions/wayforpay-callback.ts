@@ -148,7 +148,13 @@ async function issueInvite(order: Order, email: string | null): Promise<void> {
         });
         await db().from('orders').update({ email_sent_at: new Date().toISOString() }).eq('id', order.id);
       } catch (err) {
-        // Лист — страховка, а не основний канал: посилання вже є на /thank-you.
+        // Лист — ЄДИНИЙ канал видачі: /thank-you посилання більше не показує.
+        // Тому тут не «нічого страшного»: жінка заплатила і чекатиме листа,
+        // якого немає. Відповідаємо WayForPay accept усе одно (інакше ретраї
+        // йтимуть 4 доби), а слід лишається в базі: invite_link заповнений,
+        // email_sent_at порожній — це і є список тих, кому треба надіслати
+        // вручну через reissue-invite. Сама /thank-you в цьому стані показує
+        // «лист не вдалося надіслати, напишіть нам».
         console.error('callback: лист не пішов', order.order_reference, err);
       }
     }
