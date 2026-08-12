@@ -1,0 +1,12 @@
+- generic [active] [ref=f5e1]:
+  - alert [ref=f5e2]
+  - generic [ref=f5e4]:
+    - heading "Кабінет" [level=1] [ref=f5e5]
+    - paragraph [ref=f5e6]: Дата старту й фото учасниць.
+    - generic [ref=f5e7]:
+      - generic [ref=f5e8]: Пошта
+      - textbox "Пошта" [ref=f5e9]
+    - generic [ref=f5e10]:
+      - generic [ref=f5e11]: Пароль
+      - textbox "Пароль" [ref=f5e12]
+    - button "Увійти" [ref=f5e13] [cursor=pointer]

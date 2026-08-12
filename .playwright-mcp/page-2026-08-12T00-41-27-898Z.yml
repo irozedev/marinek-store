@@ -1,0 +1,105 @@
+- generic [active] [ref=f5e1]:
+  - alert [ref=f5e2]
+  - generic [ref=f5e14]:
+    - banner [ref=f5e15]:
+      - generic [ref=f5e16]:
+        - generic [ref=f5e17]:
+          - heading "Кабінет" [level=1] [ref=f5e18]
+          - paragraph [ref=f5e19]: marynabrianyk@gmail.com
+        - button "Вийти" [ref=f5e20] [cursor=pointer]
+    - main [ref=f5e21]:
+      - generic [ref=f5e22]:
+        - heading "Старт потоку" [level=2] [ref=f5e23]
+        - paragraph [ref=f5e24]: "Дата підтягнеться скрізь: перший екран, тарифи, кнопка внизу й заголовок вкладки."
+        - generic [ref=f5e25]:
+          - textbox [ref=f5e26]: 2026-08-03
+          - generic [ref=f5e27]:
+            - text: "На сайті:"
+            - strong [ref=f5e28]: "03.08"
+        - paragraph [ref=f5e29]: Ця дата вже минула. Якщо потік попереду — перевірте рік у календарі.
+        - button "Зберегти дату" [disabled] [ref=f5e30]
+      - generic [ref=f5e31]:
+        - heading "Результати учасниць" [level=2] [ref=f5e32]
+        - paragraph [ref=f5e33]: Фото стискаються автоматично — можна вантажити прямо з телефона.
+        - list [ref=f5e34]:
+          - listitem [ref=f5e35]:
+            - generic [ref=f5e36]:
+              - img "Марія — до" [ref=f5e37]
+              - img "Марія — після" [ref=f5e38]
+            - generic [ref=f5e39]:
+              - paragraph [ref=f5e40]: Марія
+              - paragraph [ref=f5e41]: 26 років · 8 тижнів марафону
+            - generic [ref=f5e42]:
+              - button "Вище" [disabled] [ref=f5e43]: ↑
+              - button "Нижче" [ref=f5e44] [cursor=pointer]: ↓
+              - button "Видалити" [ref=f5e45] [cursor=pointer]: ✕
+          - listitem [ref=f5e46]:
+            - generic [ref=f5e47]:
+              - img "Ірина — до" [ref=f5e48]
+              - img "Ірина — після" [ref=f5e49]
+            - generic [ref=f5e50]:
+              - paragraph [ref=f5e51]: Ірина
+              - paragraph [ref=f5e52]: 23 роки · 12 тижнів марафону
+            - generic [ref=f5e53]:
+              - button "Вище" [ref=f5e54] [cursor=pointer]: ↑
+              - button "Нижче" [ref=f5e55] [cursor=pointer]: ↓
+              - button "Видалити" [ref=f5e56] [cursor=pointer]: ✕
+          - listitem [ref=f5e57]:
+            - generic [ref=f5e58]:
+              - img "Наіма — до" [ref=f5e59]
+              - img "Наіма — після" [ref=f5e60]
+            - generic [ref=f5e61]:
+              - paragraph [ref=f5e62]: Наіма
+              - paragraph [ref=f5e63]: 36 років · 14 тижнів марафону
+            - generic [ref=f5e64]:
+              - button "Вище" [ref=f5e65] [cursor=pointer]: ↑
+              - button "Нижче" [ref=f5e66] [cursor=pointer]: ↓
+              - button "Видалити" [ref=f5e67] [cursor=pointer]: ✕
+          - listitem [ref=f5e68]:
+            - generic [ref=f5e69]:
+              - img "Мар'яна — до" [ref=f5e70]
+              - img "Мар'яна — після" [ref=f5e71]
+            - generic [ref=f5e72]:
+              - paragraph [ref=f5e73]: Мар'яна
+              - paragraph [ref=f5e74]: 34 роки · 10 тижнів марафону
+            - generic [ref=f5e75]:
+              - button "Вище" [ref=f5e76] [cursor=pointer]: ↑
+              - button "Нижче" [ref=f5e77] [cursor=pointer]: ↓
+              - button "Видалити" [ref=f5e78] [cursor=pointer]: ✕
+          - listitem [ref=f5e79]:
+            - generic [ref=f5e80]:
+              - img "Діана — до" [ref=f5e81]
+              - img "Діана — після" [ref=f5e82]
+            - generic [ref=f5e83]:
+              - paragraph [ref=f5e84]: Діана
+              - paragraph [ref=f5e85]: 26 років · 8 тижнів марафону
+            - generic [ref=f5e86]:
+              - button "Вище" [ref=f5e87] [cursor=pointer]: ↑
+              - button "Нижче" [disabled] [ref=f5e88]: ↓
+              - button "Видалити" [ref=f5e89] [cursor=pointer]: ✕
+        - generic [ref=f5e90]:
+          - heading "Додати картку" [level=3] [ref=f5e91]
+          - generic [ref=f5e92]:
+            - generic [ref=f5e93]:
+              - generic [ref=f5e94]: Ім'я
+              - textbox "Ім'я" [ref=f5e95]:
+                - /placeholder: Марія
+            - generic [ref=f5e96]:
+              - generic [ref=f5e97]: Вік
+              - textbox "Вік" [ref=f5e98]:
+                - /placeholder: 26 років
+            - generic [ref=f5e99]:
+              - generic [ref=f5e100]: Тривалість
+              - textbox "Тривалість" [ref=f5e101]:
+                - /placeholder: 8 тижнів марафону
+          - generic [ref=f5e102]:
+            - generic [ref=f5e103]:
+              - generic [ref=f5e104]: Фото «до»
+              - button "Фото «до»" [ref=f5e105]
+            - generic [ref=f5e106]:
+              - generic [ref=f5e107]: Фото «після»
+              - button "Фото «після»" [ref=f5e108]
+          - button "Додати картку" [disabled] [ref=f5e109]
+    - generic [ref=f5e111]:
+      - paragraph [ref=f5e112]: Запустили оновлення. Сайт зміниться за 3–5 хвилин — просто оновіть сторінку пізніше.
+      - button "Опублікувати" [ref=f5e113] [cursor=pointer]
