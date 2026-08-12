@@ -11,8 +11,16 @@ export default function Results() {
         Фото «до / після» учасниць марафону
       </p>
 
-      {/* Мобайл: горизонтальний scroll-snap full-bleed. ≥768 — grid 2 колонки, ≥1160 — 3 */}
-      <div className="mx-results -mx-5 flex touch-pan-x snap-x snap-mandatory gap-3.5 overflow-x-auto px-5 pb-2 pt-1 md:m-0 md:grid md:grid-cols-2 md:gap-[18px] md:overflow-visible md:p-0 xl:grid-cols-3">
+      {/* Мобайл: горизонтальний scroll-snap full-bleed. ≥768 — grid 2 колонки, ≥1160 — 3
+
+          БЕЗ touch-pan-x. Він тут був, і через нього палець, що почав рух
+          на цьому блоці, не міг прогорнути сторінку вниз: touch-action:
+          pan-x дозволяє браузеру ЛИШЕ горизонтальний жест. А блок високий
+          і стоїть посеред лендингу, тож більшість просто впиралася в нього
+          і не доходила до тарифів. Без цієї властивості браузер сам
+          розрізняє напрямок жесту: вбік гортає картки, вниз гортає
+          сторінку. Саме те, що треба. */}
+      <div className="mx-results -mx-5 flex snap-x snap-mandatory gap-3.5 overflow-x-auto px-5 pb-2 pt-1 md:m-0 md:grid md:grid-cols-2 md:gap-[18px] md:overflow-visible md:p-0 xl:grid-cols-3">
         {/* Ключ по індексу, а не по імені: імена тепер вводить Марина в
             адмінці, і двох Марій ніщо не забороняє. */}
         {RESULTS.map((r, i) => (

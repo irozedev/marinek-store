@@ -84,6 +84,15 @@ export default function LoginForm() {
         >
           {busy ? 'Входимо…' : 'Увійти'}
         </button>
+
+        {/* Без цього посилання екран входу — глухий кут: якщо пароль не
+            згадався, вийти звідси можна тільки через адресний рядок. */}
+        <a
+          href="/"
+          className="mt-5 block text-center text-[13px] font-semibold text-muted underline"
+        >
+          Повернутися на сайт
+        </a>
       </form>
     </div>
   );

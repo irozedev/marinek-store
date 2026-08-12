@@ -136,16 +136,23 @@ export default function ResultsEditor({ onChanged }: { onChanged: () => Promise<
       ) : (
         <ul className="m-0 mb-5 flex list-none flex-col gap-3 p-0">
           {rows.map((row, i) => (
+            // flex-wrap: два прев'ю плюс три кнопки займають майже всю
+            // ширину телефона, і імені лишається кілька пікселів. На
+            // вузькому екрані кнопки просто переходять на другий рядок,
+            // замість того щоб виштовхувати сторінку вбік.
             <li
               key={row.id}
-              className="flex items-center gap-3 rounded-2xl border border-black/10 p-3"
+              className="flex flex-wrap items-center gap-3 rounded-2xl border border-black/10 p-3"
             >
               <div className="flex shrink-0 gap-1">
                 <Thumb src={urls[row.before_path]} alt={`${row.name} — до`} />
                 <Thumb src={urls[row.after_path]} alt={`${row.name} — після`} />
               </div>
 
-              <div className="min-w-0 flex-1">
+              {/* min-w-[110px], а не min-w-0: інакше ім'я стискається в
+                  нуль і рядок ніколи не переноситься, бо формально все
+                  «влізло». */}
+              <div className="min-w-[110px] flex-1">
                 <p className="m-0 truncate text-[14.5px] font-bold text-ink">{row.name}</p>
                 <p className="m-0 truncate text-[12.5px] text-muted">
                   {row.age} · {row.weeks}

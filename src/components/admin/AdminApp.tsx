@@ -94,9 +94,15 @@ export default function AdminApp() {
   if (!session) return <LoginForm />;
 
   return (
-    <div className="min-h-screen bg-[#f6f2f8] pb-28">
+    // Запас знизу має перекривати панель публікації, яка стоїть fixed.
+    // На телефоні вона вища, ніж на десктопі (текст і кнопка лягають у
+    // два рядки), тому 112px не вистачало і низ форми ховався під нею.
+    <div className="min-h-screen bg-[#f6f2f8] pb-40 md:pb-28">
       <header className="border-b border-black/10 bg-white">
-        <div className="mx-auto flex max-w-[760px] items-center justify-between gap-3 px-5 py-4">
+        {/* flex-wrap обов'язковий: на вузькому екрані заголовок, пошта й
+            дві кнопки в один рядок не влазять і тягнуть за собою
+            горизонтальну прокрутку всієї сторінки. */}
+        <div className="mx-auto flex max-w-[760px] flex-wrap items-center justify-between gap-x-3 gap-y-2 px-5 py-4">
           <div>
             <h1 className="m-0 font-display text-[18px] font-black text-ink">Кабінет</h1>
             <p className="m-0 text-[12.5px] text-muted">{session.user.email}</p>
