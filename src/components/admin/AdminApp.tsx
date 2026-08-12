@@ -101,13 +101,27 @@ export default function AdminApp() {
             <h1 className="m-0 font-display text-[18px] font-black text-ink">Кабінет</h1>
             <p className="m-0 text-[12.5px] text-muted">{session.user.email}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => supabase().auth.signOut()}
-            className="rounded-pill border border-black/15 px-4 py-2 text-[13px] font-semibold text-ink"
-          >
-            Вийти
-          </button>
+          <div className="flex items-center gap-2">
+            {/* У нову вкладку навмисно: після «Опублікувати» хочеться
+                глянути на сайт, і кабінет при цьому має лишитись
+                відкритим, разом із незбереженим наміром щось ще
+                поправити. */}
+            <a
+              href="/"
+              target="_blank"
+              rel="noopener"
+              className="rounded-pill border border-black/15 px-4 py-2 text-[13px] font-semibold text-ink"
+            >
+              Дивитись сайт
+            </a>
+            <button
+              type="button"
+              onClick={() => supabase().auth.signOut()}
+              className="rounded-pill border border-black/15 px-4 py-2 text-[13px] font-semibold text-ink"
+            >
+              Вийти
+            </button>
+          </div>
         </div>
       </header>
 
