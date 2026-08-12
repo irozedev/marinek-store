@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Кабінет і технічні адреси. Це не захист — захищає RLS у Supabase, —
+# а лише прохання не тягти їх у пошукову видачу.
+Disallow: /admin
+Disallow: /thank-you
+Disallow: /payment-failed

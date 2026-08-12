@@ -13,9 +13,11 @@ export default function Results() {
 
       {/* Мобайл: горизонтальний scroll-snap full-bleed. ≥768 — grid 2 колонки, ≥1160 — 3 */}
       <div className="mx-results -mx-5 flex touch-pan-x snap-x snap-mandatory gap-3.5 overflow-x-auto px-5 pb-2 pt-1 md:m-0 md:grid md:grid-cols-2 md:gap-[18px] md:overflow-visible md:p-0 xl:grid-cols-3">
-        {RESULTS.map((r) => (
+        {/* Ключ по індексу, а не по імені: імена тепер вводить Марина в
+            адмінці, і двох Марій ніщо не забороняє. */}
+        {RESULTS.map((r, i) => (
           <figure
-            key={r.name}
+            key={i}
             className="m-0 w-[84%] max-w-[400px] flex-none snap-center overflow-hidden rounded-24 border-2 border-pinkBorder bg-white shadow-card md:w-auto"
           >
             <div className="grid grid-cols-2">

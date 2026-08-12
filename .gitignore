@@ -8,6 +8,13 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# Контент, який scripts/sync-content.mjs забирає з Supabase перед збіркою.
+# У гіті його немає навмисно: джерело правди — база, яку редагує Марина,
+# а не репозиторій. Запасний варіант на випадок недоступної бази лежить
+# поруч у src/lib/content.defaults.json і в гіті якраз є.
+src/lib/content.generated.json
+public/uploads/
+
 # Local Netlify folder
 .netlify
 

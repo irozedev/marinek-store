@@ -1,5 +1,19 @@
-// Єдина константа дати старту — зустрічається в hero, тарифах, фінальному CTA і sticky CTA.
-export const START_DATE = '03.08';
+// ─────────────────────────────────────────────────────────────────────
+// Дата старту й картки результатів редагуються Мариною в /admin і лежать
+// у Supabase. Сюди вони потрапляють НЕ запитом із браузера, а файлом,
+// який scripts/sync-content.mjs пише перед кожною збіркою (див. prebuild
+// у package.json). Тобто на сайті це така сама статика, як раніше.
+//
+// content.generated.json у гіті немає — його щоразу створює скрипт. Якщо
+// бази нема під рукою (свіжий клон, локальна робота без ключів, збій
+// Supabase), скрипт покладе туди вміст content.defaults.json, і сайт
+// збереться зі старим, але цілим контентом.
+// ─────────────────────────────────────────────────────────────────────
+import content from './content.generated.json';
+
+// Формат ДД.ММ. Зустрічається в hero, тарифах, фінальному CTA, sticky CTA
+// і в <title> — саме тому в адмінці стоїть календар, а не текстове поле.
+export const START_DATE: string = content.startDate;
 
 export const SITE_URL = 'https://marinek.store';
 
@@ -23,40 +37,4 @@ export type ResultCard = {
   after: string;
 };
 
-export const RESULTS: ResultCard[] = [
-  {
-    name: 'Марія',
-    age: '26 років',
-    weeks: '8 тижнів марафону',
-    before: '/images/results/maria-before.webp',
-    after: '/images/results/maria-after.webp',
-  },
-  {
-    name: 'Ірина',
-    age: '23 роки',
-    weeks: '12 тижнів марафону',
-    before: '/images/results/iryna-before.webp',
-    after: '/images/results/iryna-after.webp',
-  },
-  {
-    name: 'Наіма',
-    age: '36 років',
-    weeks: '14 тижнів марафону',
-    before: '/images/results/naima-before.webp',
-    after: '/images/results/naima-after.webp',
-  },
-  {
-    name: "Мар'яна",
-    age: '34 роки',
-    weeks: '10 тижнів марафону',
-    before: '/images/results/mariana-before.webp',
-    after: '/images/results/mariana-after.webp',
-  },
-  {
-    name: 'Діана',
-    age: '26 років',
-    weeks: '8 тижнів марафону',
-    before: '/images/results/diana-before.webp',
-    after: '/images/results/diana-after.webp',
-  },
-];
+export const RESULTS: ResultCard[] = content.results;
