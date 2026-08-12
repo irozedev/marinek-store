@@ -43,6 +43,31 @@ create table if not exists results (
   created_at  timestamptz not null default now()
 );
 
+-- ── Хто саме має право редагувати ───────────────────────────────────
+-- Поіменний список. Спокуса була написати політики просто для ролі
+-- `authenticated` — мовляв, реєстрація в проєкті вимкнена, отже це й
+-- так одна Марина. Але тоді весь захист кабінету тримався б на одному
+-- перемикачі в дашборді: варто його колись увімкнути (випадково або щоб
+-- зробити входи покупчиням) — і будь-хто, хто зареєструвався, отримує
+-- право переписати контент сайту. Тому право дає не факт входу, а рядок
+-- у цій таблиці.
+create table if not exists admins (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  note       text,
+  created_at timestamptz not null default now()
+);
+
+-- Політик нема жодної: список адміністраторів не читається через API
+-- взагалі й нікому. Він потрібен лише всередині перевірок нижче.
+alter table admins enable row level security;
+
+-- security definer — щоб перевірка бачила таблицю admins попри RLS на
+-- ній самій. Без цього підзапит повертав би порожньо і не пускав нікого.
+create or replace function is_admin() returns boolean
+  language sql stable security definer set search_path = public as $$
+  select exists (select 1 from admins where user_id = auth.uid());
+$$;
+
 -- ── RLS ─────────────────────────────────────────────────────────────
 -- Політик для anon НЕМА і не буде: неавторизований браузер не читає ці
 -- таблиці взагалі. Збірка ходить під service_role, який RLS обходить.
@@ -51,20 +76,20 @@ alter table results      enable row level security;
 
 drop policy if exists "content read"   on site_content;
 drop policy if exists "content write"  on site_content;
-create policy "content read"  on site_content for select to authenticated using (true);
+create policy "content read"  on site_content for select to authenticated using (is_admin());
 create policy "content write" on site_content for update to authenticated
-  using (true) with check (true);
+  using (is_admin()) with check (is_admin());
 -- insert/delete не даємо навмисно: рядок рівно один і він уже є.
 
 drop policy if exists "results read"   on results;
 drop policy if exists "results insert" on results;
 drop policy if exists "results update" on results;
 drop policy if exists "results delete" on results;
-create policy "results read"   on results for select to authenticated using (true);
-create policy "results insert" on results for insert to authenticated with check (true);
+create policy "results read"   on results for select to authenticated using (is_admin());
+create policy "results insert" on results for insert to authenticated with check (is_admin());
 create policy "results update" on results for update to authenticated
-  using (true) with check (true);
-create policy "results delete" on results for delete to authenticated using (true);
+  using (is_admin()) with check (is_admin());
+create policy "results delete" on results for delete to authenticated using (is_admin());
 
 -- ── Позначка «є неопубліковані зміни» ───────────────────────────────
 -- Щоб адмінка могла чесно сказати «на сайті ще старе». Рахуємо як
@@ -117,8 +142,28 @@ drop policy if exists "results objects read"   on storage.objects;
 drop policy if exists "results objects insert" on storage.objects;
 drop policy if exists "results objects delete" on storage.objects;
 create policy "results objects read" on storage.objects for select to authenticated
-  using (bucket_id = 'results');
+  using (bucket_id = 'results' and is_admin());
 create policy "results objects insert" on storage.objects for insert to authenticated
-  with check (bucket_id = 'results');
+  with check (bucket_id = 'results' and is_admin());
 create policy "results objects delete" on storage.objects for delete to authenticated
-  using (bucket_id = 'results');
+  using (bucket_id = 'results' and is_admin());
+
+-- ── Видати доступ Марині ────────────────────────────────────────────
+-- Акаунт має існувати ДО цього кроку (Authentication → Users, або через
+-- Admin API — див. docs/admin-setup.md). Доки рядка тут немає, кабінет
+-- порожній навіть для неї: це не поломка, а поіменний список у дії.
+insert into admins (user_id, note)
+select id, 'Марина'
+from auth.users
+where email = 'ЗАМІНИТИ_НА_ПОШТУ_МАРИНИ'
+on conflict (user_id) do nothing;
+
+-- Якщо пошту не замінили або написали з помилкою, попередній запит
+-- нічого не зробить і промовчить — а кабінет потім просто не відкриється,
+-- і причина буде незрозуміла. Тому одразу голосно перевіряємо.
+do $$
+begin
+  if not exists (select 1 from admins) then
+    raise exception 'Таблиця admins порожня. Перевірте пошту в запиті вище: акаунт із такою адресою в Authentication → Users не знайдено.';
+  end if;
+end $$;
