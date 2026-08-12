@@ -36,6 +36,7 @@ const SAFE_NAME_RE = /^[A-Za-z0-9._-]+$/;
 main();
 
 async function main() {
+  await loadDotEnv();
   const defaults = JSON.parse(await readFile(DEFAULTS_PATH, 'utf8'));
 
   let content;
@@ -136,6 +137,34 @@ async function download(url, auth, path) {
 
   await writeFile(join(UPLOADS_DIR, name), Buffer.from(await res.arrayBuffer()));
   return `${UPLOADS_URL}/${name}`;
+}
+
+/**
+ * Локально ключі лежать у .env, але його читає Next, а не цей скрипт —
+ * ми запускаємось окремим процесом ДО нього. Без цього `npm run dev`
+ * мовчки збирав би сайт із запасного контенту, і локально ніколи не було
+ * б видно того, що Марина справді відредагувала.
+ *
+ * На Netlify файлу немає — там змінні вже в оточенні, і ця функція
+ * просто нічого не робить. Наявні змінні не перетираємо: оточення
+ * головніше за файл.
+ */
+async function loadDotEnv() {
+  let raw;
+  try {
+    raw = await readFile(join(ROOT, '.env'), 'utf8');
+  } catch {
+    return;
+  }
+
+  for (const line of raw.split(/\r?\n/)) {
+    const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)$/.exec(line);
+    if (!match || line.trimStart().startsWith('#')) continue;
+    const [, key, value] = match;
+    if (process.env[key] === undefined) {
+      process.env[key] = value.trim().replace(/^["']|["']$/g, '');
+    }
+  }
 }
 
 function warn(message) {

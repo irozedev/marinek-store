@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Unbounded, Golos_Text } from 'next/font/google';
 import CookieConsent from '@/components/CookieConsent';
-import { SITE_URL } from '@/lib/site';
+import { SITE_URL, START_DATE } from '@/lib/site';
 import './globals.css';
 
 const unbounded = Unbounded({
@@ -20,7 +20,11 @@ const golos = Golos_Text({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: 'Марафон схуднення для жінок — старт 03.08',
+  // Запасний заголовок: усі сторінки задають свій, тож зараз цей рядок
+  // нікуди не потрапляє. Дата все одно береться з START_DATE — інакше
+  // перша ж сторінка без власних metadata показала б мертву дату,
+  // яку Марина не може змінити й ніхто б не помітив.
+  title: `Марафон схуднення для жінок — старт ${START_DATE}`,
   description:
     'Ціль — навчитись худнути так, щоб результат залишився. 21 день, 7 тренувань, 3 Zoom наживо.',
 };
