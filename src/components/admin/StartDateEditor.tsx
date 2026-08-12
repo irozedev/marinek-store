@@ -119,7 +119,13 @@ export default function StartDateEditor({
           На сайті: <strong className="text-ink">{nextDate || content.start_date}</strong>
         </span>
         {state === 'saving' && <span className="text-[13px] text-muted">Зберігаємо…</span>}
-        {state === 'saved' && <span className="text-[13px] font-semibold text-green-700">Збережено ✓</span>}
+        {/* Не просто «Збережено»: галочка читається як «готово», а сайт
+            цієї дати ще не показує. Кажемо прямо, чого бракує. */}
+        {state === 'saved' && (
+          <span className="text-[13px] font-semibold text-green-700">
+            Збережено — лишилось опублікувати
+          </span>
+        )}
       </div>
 
       {inPast && (
