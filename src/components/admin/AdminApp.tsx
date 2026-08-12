@@ -31,6 +31,8 @@ export default function AdminApp() {
 
   const [content, setContent] = useState<Content | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // Правка, яка ще не долетіла до бази. Поки вона є — публікувати рано.
+  const [pendingEdit, setPendingEdit] = useState(false);
 
   useEffect(() => {
     let sb;
@@ -116,11 +118,15 @@ export default function AdminApp() {
           </p>
         )}
 
-        <StartDateEditor content={content} onSaved={reloadContent} />
+        <StartDateEditor
+          content={content}
+          onSaved={reloadContent}
+          onPendingChange={setPendingEdit}
+        />
         <ResultsEditor onChanged={reloadContent} />
       </main>
 
-      <PublishBar content={content} onPublished={reloadContent} />
+      <PublishBar content={content} pendingEdit={pendingEdit} onPublished={reloadContent} />
     </div>
   );
 }

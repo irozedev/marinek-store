@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase-browser';
 import type { Content } from './AdminApp';
 
@@ -12,44 +12,93 @@ import type { Content } from './AdminApp';
  * Текстове поле дозволило б написати «3 серпня» або «03.08.2026» — і всі
  * чотири місця поїхали б одночасно, а помітили б це вже покупчині.
  * З календаря неправильний формат ввести неможливо в принципі.
+ *
+ * ЗБЕРІГАЄТЬСЯ САМО, без кнопки. Спершу кнопка була — і це виявилось
+ * пасткою на живому запуску 12.08.2026: усе інше в кабінеті (додати
+ * картку, видалити, переставити) лягає в базу одразу, тому природне
+ * «змінив дату — тисну Опублікувати» мовчки публікувало стару дату.
+ * Помилку помітно не одразу: збірка проходить успішно, просто нічого
+ * не змінюється. Одна кнопка «Опублікувати» на весь кабінет — менше
+ * місць, де можна не туди натиснути.
  */
+
+// Пауза перед записом. Дату можна не тільки клікнути в календарі, а й
+// набрати з клавіатури — і тоді рік «2027» проходить через 0002, 0020,
+// 0202. Кожне з них — валідна дата, тобто без паузи це чотири записи
+// в базу підряд замість одного.
+const SAVE_DELAY_MS = 800;
 
 export default function StartDateEditor({
   content,
   onSaved,
+  onPendingChange,
 }: {
   content: Content | null;
   onSaved: () => Promise<void>;
+  /**
+   * Повідомляє нагору, що правка ще не долетіла до бази. Поки це так,
+   * кнопка «Опублікувати» вимкнена: інакше клік у першу секунду після
+   * вибору дати запустив би збірку зі старою датою, а нова записалась
+   * би вже після неї. Збірка при цьому пройшла б успішно — і зрозуміти,
+   * чому дата не змінилась, було б неможливо.
+   */
+  onPendingChange: (pending: boolean) => void;
 }) {
   const [value, setValue] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [state, setState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [error, setError] = useState<string | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (content) setValue(toInputDate(content.start_date));
   }, [content]);
+
+  const save = useCallback(
+    async (nextDate: string) => {
+      setState('saving');
+      setError(null);
+
+      const { error } = await supabase()
+        .from('site_content')
+        .update({ start_date: nextDate })
+        .eq('id', 1);
+
+      if (error) {
+        setError(error.message);
+        setState('idle');
+        onPendingChange(false);
+        return;
+      }
+      await onSaved();
+      setState('saved');
+      onPendingChange(false);
+    },
+    [onSaved, onPendingChange],
+  );
+
+  // Таймер, що не встиг спрацювати, не має писати в базу після того,
+  // як компонент зник з екрана.
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   if (!content) {
     return <Card><p className="m-0 text-[14px] text-muted">Завантаження…</p></Card>;
   }
 
   const nextDate = fromInputDate(value);
-  const changed = Boolean(nextDate) && nextDate !== content.start_date;
   const inPast = Boolean(value) && value < todayIso();
 
-  async function save() {
-    if (!nextDate || busy) return;
-    setBusy(true);
-    setError(null);
+  function onPick(iso: string) {
+    setValue(iso);
+    setState('idle');
+    if (timer.current) clearTimeout(timer.current);
 
-    const { error } = await supabase()
-      .from('site_content')
-      .update({ start_date: nextDate })
-      .eq('id', 1);
-
-    if (error) setError(error.message);
-    else await onSaved();
-    setBusy(false);
+    const picked = fromInputDate(iso);
+    if (!picked || picked === content!.start_date) {
+      onPendingChange(false);
+      return;
+    }
+    onPendingChange(true);
+    timer.current = setTimeout(() => void save(picked), SAVE_DELAY_MS);
   }
 
   return (
@@ -63,12 +112,14 @@ export default function StartDateEditor({
         <input
           type="date"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
+          onChange={(e) => onPick(e.target.value)}
           className="rounded-2xl border border-black/15 px-4 py-3 text-[15px] text-ink outline-none focus:border-magenta"
         />
         <span className="text-[14px] text-muted">
           На сайті: <strong className="text-ink">{nextDate || content.start_date}</strong>
         </span>
+        {state === 'saving' && <span className="text-[13px] text-muted">Зберігаємо…</span>}
+        {state === 'saved' && <span className="text-[13px] font-semibold text-green-700">Збережено ✓</span>}
       </div>
 
       {inPast && (
@@ -81,15 +132,6 @@ export default function StartDateEditor({
       )}
 
       {error && <p className="m-0 mt-3 text-[13px] text-red-700">{error}</p>}
-
-      <button
-        type="button"
-        onClick={save}
-        disabled={!changed || busy}
-        className="mt-4 rounded-pill bg-ink px-6 py-3 font-display text-[14px] font-bold text-white disabled:opacity-40"
-      >
-        {busy ? 'Зберігаємо…' : 'Зберегти дату'}
-      </button>
     </Card>
   );
 }

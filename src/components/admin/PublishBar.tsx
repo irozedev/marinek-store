@@ -19,9 +19,12 @@ import type { Content } from './AdminApp';
 
 export default function PublishBar({
   content,
+  pendingEdit,
   onPublished,
 }: {
   content: Content | null;
+  /** Правка ще пишеться в базу — публікувати рано, зібралося б старе. */
+  pendingEdit: boolean;
   onPublished: () => Promise<void>;
 }) {
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
@@ -60,7 +63,9 @@ export default function PublishBar({
     <div className="fixed inset-x-0 bottom-0 border-t border-black/10 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-[760px] flex-wrap items-center justify-between gap-3 px-5 py-4">
         <p className="m-0 max-w-[420px] text-[13px] leading-[1.45] text-muted">
-          {state === 'sent' ? (
+          {pendingEdit ? (
+            <span className="font-semibold text-ink">Зберігаємо зміни…</span>
+          ) : state === 'sent' ? (
             <span className="font-semibold text-ink">
               Запустили оновлення. Сайт зміниться за 3–5 хвилин — просто оновіть сторінку
               пізніше.
@@ -79,7 +84,7 @@ export default function PublishBar({
         <button
           type="button"
           onClick={publish}
-          disabled={state === 'sending' || (!dirty && state === 'idle')}
+          disabled={pendingEdit || state === 'sending' || (!dirty && state === 'idle')}
           className="rounded-pill bg-magenta px-7 py-3.5 font-display text-[15px] font-bold text-white disabled:opacity-40"
         >
           {state === 'sending' ? 'Запускаємо…' : 'Опублікувати'}
