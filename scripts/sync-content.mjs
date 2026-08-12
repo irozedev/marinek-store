@@ -49,12 +49,17 @@ async function main() {
   if (!content) {
     // Локально без .env це нормальний режим роботи, а не помилка.
     console.log('[content] беремо запасний контент із content.defaults.json');
-    content = { startDate: defaults.startDate, results: defaults.results };
+    content = {
+      startDate: defaults.startDate,
+      heroImage: defaults.heroImage,
+      results: defaults.results,
+    };
   }
 
   await writeFile(OUT_PATH, `${JSON.stringify(content, null, 2)}\n`, 'utf8');
   console.log(
-    `[content] старт ${content.startDate}, карток результатів: ${content.results.length}`,
+    `[content] старт ${content.startDate}, карток результатів: ${content.results.length}` +
+      `, банер: ${content.heroImage}`,
   );
 }
 
@@ -109,7 +114,44 @@ async function fromSupabase(defaults) {
     return null;
   }
 
-  return { startDate: startDate ?? defaults.startDate, results };
+  // Головне фото шукаємо у сховищі за префіксом «hero-». Відсутність
+  // такого файлу — нормальний стан, а не збій: означає, що своє фото ще
+  // не завантажували і треба лишити те, що в репозиторії. Якщо файл є,
+  // але не викачався, теж падати нікуди: краще старий банер, ніж діра
+  // в першому екрані.
+  let heroImage = defaults.heroImage;
+  try {
+    const hero = await newestHero(url, auth);
+    if (hero) heroImage = await download(url, auth, hero);
+  } catch (err) {
+    warn(`головне фото не викачалось, лишаємо старе: ${err.message}`);
+  }
+
+  return { startDate: startDate ?? defaults.startDate, heroImage, results };
+}
+
+/**
+ * Найсвіжіший файл «hero-*» у сховищі, або null, якщо свого банера ще
+ * не завантажували. Фільтруємо на своєму боці: bucket плаский і файлів
+ * там десяток, тож немає сенсу покладатися на те, як Supabase трактує
+ * prefix у пласкому сховищі.
+ */
+async function newestHero(url, auth) {
+  const res = await fetch(`${url}/storage/v1/object/list/${BUCKET}`, {
+    method: 'POST',
+    headers: { ...auth, 'content-type': 'application/json' },
+    body: JSON.stringify({
+      // prefix обов'язковий, без нього Storage відповідає 400.
+      // Порожній рядок означає корінь bucket'а.
+      prefix: '',
+      limit: 200,
+      sortBy: { column: 'created_at', order: 'desc' },
+    }),
+  });
+  if (!res.ok) throw new Error(`список сховища: ${res.status}`);
+
+  const items = await res.json();
+  return items.find((o) => typeof o.name === 'string' && o.name.startsWith('hero-'))?.name ?? null;
 }
 
 async function api(endpoint, auth) {

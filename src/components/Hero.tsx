@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { START_DATE } from '@/lib/site';
+import { START_DATE, HERO_IMAGE } from '@/lib/site';
 
 export default function Hero() {
   return (
@@ -49,7 +49,7 @@ export default function Hero() {
       <div className="relative -mt-2 md:mt-0">
         {/* Мобайл: маска зверху. Десктоп: маска зліва, фото на всю висоту колонки */}
         <Image
-          src="/images/hero-trainer.webp"
+          src={HERO_IMAGE}
           alt="Тренерка марафону"
           width={1024}
           height={1536}

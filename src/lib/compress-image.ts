@@ -11,21 +11,28 @@
  * впаде з помилкою, а не пролізе на лендинг.
  */
 
-// Картка на сайті — 400×600 CSS-пікселів. Подвоюємо під Retina і на цьому
-// зупиняємось: далі різниці на екрані вже не видно, а вага росте.
-const MAX_WIDTH = 800;
-const MAX_HEIGHT = 1200;
+// Картка «до/після» на сайті — 400×600 CSS-пікселів. Подвоюємо під Retina
+// і на цьому зупиняємось: далі різниці на екрані вже не видно, а вага росте.
+const CARD = { maxWidth: 800, maxHeight: 1200 } as const;
+
+// Головне фото більше: воно на весь екран телефона і на пів екрана
+// десктопа. 1024×1536 — розмір нинішнього банера, який важить 56 КБ.
+export const HERO = { maxWidth: 1024, maxHeight: 1536 } as const;
+
 const QUALITY = 0.82;
 
 export const MAX_UPLOAD_BYTES = 1_048_576;
 
-export async function compressToWebp(file: File): Promise<Blob> {
+export async function compressToWebp(
+  file: File,
+  limits: { maxWidth: number; maxHeight: number } = CARD,
+): Promise<Blob> {
   if (!file.type.startsWith('image/')) {
     throw new Error('Це не зображення. Оберіть фото.');
   }
 
   const bitmap = await loadBitmap(file);
-  const scale = Math.min(MAX_WIDTH / bitmap.width, MAX_HEIGHT / bitmap.height, 1);
+  const scale = Math.min(limits.maxWidth / bitmap.width, limits.maxHeight / bitmap.height, 1);
   const width = Math.round(bitmap.width * scale);
   const height = Math.round(bitmap.height * scale);
 

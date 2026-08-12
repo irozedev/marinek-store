@@ -15,6 +15,10 @@ import content from './content.generated.json';
 // і в <title> — саме тому в адмінці стоїть календар, а не текстове поле.
 export const START_DATE: string = content.startDate;
 
+// Головне фото першого екрана. Доки Марина не завантажила своє,
+// це файл із репозиторію.
+export const HERO_IMAGE: string = content.heroImage;
+
 export const SITE_URL = 'https://marinek.store';
 
 // Ціни, платіжні посилання й Telegram-інвайти свідомо ЖИВУТЬ НА СЕРВЕРІ

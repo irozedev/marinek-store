@@ -4,7 +4,7 @@ import { Marquee, Benefits, Included, Program } from '@/components/Sections';
 import Tariffs from '@/components/Tariffs';
 import Results from '@/components/Results';
 import { Faq, FinalCta, Footer, StickyCta } from '@/components/Closing';
-import { START_DATE } from '@/lib/site';
+import { START_DATE, HERO_IMAGE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: `Марафон схуднення для жінок — старт ${START_DATE}`,
@@ -17,7 +17,10 @@ export const metadata: Metadata = {
     url: '/',
     type: 'website',
     locale: 'uk_UA',
-    images: [{ url: '/images/hero-trainer.webp', width: 470, height: 836 }],
+    // Прев'ю для месенджерів. Йде з того ж джерела, що й банер: інакше
+    // Марина замінить фото на сайті, а в пересланому посиланні ще довго
+    // висітиме старе, і ніхто не зрозуміє чому.
+    images: [{ url: HERO_IMAGE, width: 1024, height: 1536 }],
   },
 };
 

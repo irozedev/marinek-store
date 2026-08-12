@@ -31,7 +31,7 @@ export default async (req: Request): Promise<Response> => {
   }
 
   const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
-  if (!token || !(await isSignedIn(token))) {
+  if (!token || !(await isAdmin(token))) {
     return json({ message: 'Схоже, ви вийшли з кабінету. Увійдіть ще раз.' }, 401);
   }
 
@@ -66,11 +66,19 @@ export default async (req: Request): Promise<Response> => {
 };
 
 /**
- * Перевіряємо токен у самого Supabase, а не розбираємо JWT руками.
- * Так підпис, термін дії та відкликані сесії перевіряються за нас —
- * а саме на самописному розборі JWT зазвичай і помиляються.
+ * Токен перевіряємо в самого Supabase, а не розбираємо JWT руками: так
+ * підпис, термін дії та відкликані сесії перевіряються за нас, а саме
+ * на самописному розборі JWT зазвичай і помиляються.
+ *
+ * Але одного лише «валідний токен» тут МАЛО. Реєстрація в проєкті
+ * відкрита (перевірено 12.08.2026 живою спробою), тож акаунт може
+ * завести будь-хто. Раніше цього вистачало, щоб запускати збірки: не
+ * страшно для даних, але безкоштовний тариф Netlify дає 300 хвилин на
+ * місяць, і в липні вони вже закінчувались — тоді сайт не можна було
+ * оновити взагалі. Тому право дає рядок у `admins`, як і всюди в
+ * кабінеті.
  */
-async function isSignedIn(token: string): Promise<boolean> {
+async function isAdmin(token: string): Promise<boolean> {
   const url = process.env.SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error('SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY не задані');
@@ -79,7 +87,15 @@ async function isSignedIn(token: string): Promise<boolean> {
     auth: { persistSession: false, autoRefreshToken: false },
   }).auth.getUser(token);
 
-  return Boolean(data?.user) && !error;
+  if (error || !data?.user) return false;
+
+  const { data: row } = await db()
+    .from('admins')
+    .select('user_id')
+    .eq('user_id', data.user.id)
+    .maybeSingle();
+
+  return Boolean(row);
 }
 
 function json(body: unknown, status = 200): Response {

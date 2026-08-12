@@ -5,7 +5,9 @@ import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase-browser';
 import LoginForm from './LoginForm';
 import StartDateEditor from './StartDateEditor';
+import HeroEditor from './HeroEditor';
 import ResultsEditor from './ResultsEditor';
+import OrdersList from './OrdersList';
 import PublishBar from './PublishBar';
 
 /**
@@ -152,7 +154,11 @@ export default function AdminApp() {
           onSaved={reloadContent}
           onPendingChange={setPendingEdit}
         />
+        <HeroEditor onSaved={reloadContent} />
         <ResultsEditor onChanged={reloadContent} />
+        {/* Замовлення нижче за редактори й згорнуті: це довідка на
+            випадок «мені не прийшов доступ», а не щоденна робота. */}
+        <OrdersList />
       </main>
 
       <PublishBar content={content} pendingEdit={pendingEdit} onPublished={reloadContent} />
