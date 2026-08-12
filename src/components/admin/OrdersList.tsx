@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase-browser';
-import Section from './Section';
 
 /**
  * Останні замовлення.
@@ -50,16 +49,18 @@ const STATUS: Record<string, { label: string; cls: string }> = {
 
 export default function OrdersList() {
   return (
-    <Section title="Останні замовлення" hint="Хто оплатив і чи дійшов до неї доступ.">
+    <section className="rounded-24 bg-white p-5 shadow-card">
+      <h2 className="m-0 mb-1 font-display text-[16px] font-black text-ink">
+        Останні замовлення
+      </h2>
+      <p className="m-0 mb-4 text-[13px] leading-[1.5] text-muted">
+        Хто оплатив і чи дійшов до неї доступ.
+      </p>
       <Orders />
-    </Section>
+    </section>
   );
 }
 
-/**
- * Окремий компонент, бо Section монтує вміст тільки коли блок відкрили.
- * Отже, запит іде рівно тоді, коли список справді потрібен.
- */
 function Orders() {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [error, setError] = useState<string | null>(null);
