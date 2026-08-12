@@ -26,3 +26,6 @@ deno.lock
 *.tmp.html
 *.tmp.log
 *.tmp.txt
+
+# Знімки сторінок від Playwright MCP — сміття з налагодження
+.playwright-mcp/
