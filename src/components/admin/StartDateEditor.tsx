@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase-browser';
-import Section from './Section';
 import type { Content } from './AdminApp';
 
 /**
@@ -138,19 +137,15 @@ export default function StartDateEditor({
   );
 }
 
-/**
- * Дата — єдиний блок, відкритий одразу: її міняють найчастіше, і саме
- * заради неї найчастіше заходять у кабінет.
- */
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <Section
-      title="Старт потоку"
-      hint="Дата підтягнеться скрізь: перший екран, тарифи, кнопка внизу й заголовок вкладки."
-      defaultOpen
-    >
+    <section className="rounded-24 bg-white p-5 shadow-card">
+      <h2 className="m-0 mb-1 font-display text-[16px] font-black text-ink">Старт потоку</h2>
+      <p className="m-0 mb-4 text-[13px] leading-[1.5] text-muted">
+        Дата підтягнеться скрізь: перший екран, тарифи, кнопка внизу й заголовок вкладки.
+      </p>
       {children}
-    </Section>
+    </section>
   );
 }
 
