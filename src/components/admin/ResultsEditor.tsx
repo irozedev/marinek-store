@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase, RESULTS_BUCKET } from '@/lib/supabase-browser';
 import { compressToWebp } from '@/lib/compress-image';
+import Section from './Section';
 
 /**
  * Картки «Результати учасниць»: пара фото до/після, ім'я, вік, тривалість.
@@ -117,14 +118,10 @@ export default function ResultsEditor({ onChanged }: { onChanged: () => Promise<
   }
 
   return (
-    <section className="rounded-24 bg-white p-5 shadow-card">
-      <h2 className="m-0 mb-1 font-display text-[16px] font-black text-ink">
-        Результати учасниць
-      </h2>
-      <p className="m-0 mb-4 text-[13px] leading-[1.5] text-muted">
-        Фото стискаються автоматично — можна вантажити прямо з телефона.
-      </p>
-
+    <Section
+      title="Результати учасниць"
+      hint="Фото стискаються автоматично — можна вантажити прямо з телефона."
+    >
       {error && (
         <p className="m-0 mb-4 rounded-2xl bg-red-50 p-3.5 text-[13.5px] leading-[1.5] text-red-700">
           {error}
@@ -188,7 +185,7 @@ export default function ResultsEditor({ onChanged }: { onChanged: () => Promise<
       )}
 
       <AddForm onAdded={refresh} nextPosition={rows?.length ?? 0} onError={setError} />
-    </section>
+    </Section>
   );
 }
 

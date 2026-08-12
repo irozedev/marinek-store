@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { supabase, RESULTS_BUCKET } from '@/lib/supabase-browser';
 import { compressToWebp, HERO } from '@/lib/compress-image';
+import Section from './Section';
 
 /**
  * Головне фото першого екрана.
@@ -85,12 +86,7 @@ export default function HeroEditor({ onSaved }: { onSaved: () => Promise<void> }
   }
 
   return (
-    <section className="rounded-24 bg-white p-5 shadow-card">
-      <h2 className="m-0 mb-1 font-display text-[16px] font-black text-ink">Головне фото</h2>
-      <p className="m-0 mb-4 text-[13px] leading-[1.5] text-muted">
-        Те, що видно найпершим, коли відкривають сайт.
-      </p>
-
+    <Section title="Головне фото" hint="Те, що видно найпершим, коли відкривають сайт.">
       <div className="flex flex-wrap items-start gap-4">
         {preview ? (
           // eslint-disable-next-line @next/next/no-img-element -- підписане
@@ -137,7 +133,7 @@ export default function HeroEditor({ onSaved }: { onSaved: () => Promise<void> }
           {error && <p className="m-0 mt-2 text-[13px] leading-[1.4] text-red-700">{error}</p>}
         </div>
       </div>
-    </section>
+    </Section>
   );
 }
 
